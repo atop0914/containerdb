@@ -29,7 +29,7 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 | 日期 | 任务 | 状态 |
 |------|------|------|
 | Day 8 | 添加连接池配置、健康检查增强 | ✅ done |
-| Day 9 | 实现数据迁移辅助工具（migrate integration） | todo |
+| Day 9 | 实现数据迁移辅助工具（migrate integration） | ✅ done |
 | Day 10 | 添加 Docker Compose 兼容模式 | todo |
 | Day 11 | 完善文档，编写使用指南 | todo |
 | Day 12 | 添加性能基准测试 | todo |
@@ -40,14 +40,19 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 https://github.com/atop0914/containerdb-bootcamp
 
 ## 当前阶段
-**Week 1 - Day 8 完成**
+**Week 2 - Day 9 完成**
 
-Day 8 完成内容：
-- ✅ 添加 `internal/health` 健康检查包，支持重试逻辑
-- ✅ 添加 `internal/pool` 连接池监控包，获取统计数据
-- ✅ MySQL 和 PostgreSQL 配置新增 `HealthCheckRetries` 和 `HealthCheckInterval` 选项
-- ✅ 新增 `WithHealthCheckRetry` 和 `WithHealthCheckInterval` 函数选项
-- ✅ 编写健康检查和连接池监控的单元测试
+Day 9 完成内容：
+- ✅ 添加 `internal/migrate` 包，核心迁移逻辑
+  - 支持读取 `.up.sql` 和 `.down.sql` 迁移文件
+  - 提供 functional options 配置（表名、超时）
+  - `ReadMigrations` 和 `ReadDirectionalMigrations` 函数
+  - `Run` 执行迁移、`Force` 强制设置版本
+- ✅ 添加 `pkg/migrate` 包，高级封装
+  - `Runner` 结构体封装迁移运行器
+  - `Up`/`Down` 方法执行迁移/回滚
+  - 与 containerdb 现有数据库 API 集成
+- ✅ 编写完整的单元测试
 
 ## 下一步
-等待 Day 9 任务：实现数据迁移辅助工具（migrate integration）。
+等待 Day 10 任务：添加 Docker Compose 兼容模式。
