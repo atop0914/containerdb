@@ -30,7 +30,7 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 |------|------|------|
 | Day 8 | 添加连接池配置、健康检查增强 | ✅ done |
 | Day 9 | 实现数据迁移辅助工具（migrate integration） | ✅ done |
-| Day 10 | 添加 Docker Compose 兼容模式 | todo |
+| Day 10 | 添加 Docker Compose 兼容模式 | ✅ done |
 | Day 11 | 完善文档，编写使用指南 | todo |
 | Day 12 | 添加性能基准测试 | todo |
 | Day 13 | 代码优化，清理 TODO，提交 v1.0.0 | todo |
@@ -40,19 +40,16 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 https://github.com/atop0914/containerdb-bootcamp
 
 ## 当前阶段
-**Week 2 - Day 9 完成**
+**Week 2 - Day 10 完成**
 
-Day 9 完成内容：
-- ✅ 添加 `internal/migrate` 包，核心迁移逻辑
-  - 支持读取 `.up.sql` 和 `.down.sql` 迁移文件
-  - 提供 functional options 配置（表名、超时）
-  - `ReadMigrations` 和 `ReadDirectionalMigrations` 函数
-  - `Run` 执行迁移、`Force` 强制设置版本
-- ✅ 添加 `pkg/migrate` 包，高级封装
-  - `Runner` 结构体封装迁移运行器
-  - `Up`/`Down` 方法执行迁移/回滚
-  - 与 containerdb 现有数据库 API 集成
-- ✅ 编写完整的单元测试
+Day 10 完成内容：
+- ✅ 添加 `internal/compose` 包，compose 文件解析和生成
+- ✅ 支持解析现有的 docker-compose.yml 文件
+- ✅ 生成 MySQL 和 PostgreSQL 服务配置
+- ✅ 添加 `pkg/compose` 包，高级 compose runner
+- ✅ 支持 docker-compose up/down/ps/logs 操作
+- ✅ 提供模板函数快速生成 compose 文件
+- ✅ 编写完整的单元测试（21 个测试用例）
 
 ## 下一步
-等待 Day 10 任务：添加 Docker Compose 兼容模式。
+等待 Day 11 任务：完善文档，编写使用指南。
