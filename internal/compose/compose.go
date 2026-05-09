@@ -4,21 +4,34 @@ package compose
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
+// HealthCheck represents a Docker health check configuration.
+type HealthCheck struct {
+	Test        []string `yaml:"test,omitempty"`
+	Interval    string   `yaml:"interval,omitempty"`
+	Timeout     string   `yaml:"timeout,omitempty"`
+	Retries     int      `yaml:"retries,omitempty"`
+	StartPeriod string   `yaml:"start_period,omitempty"`
+}
+
 // Service represents a single service in a Docker Compose file.
 type Service struct {
-	Image       string            `yaml:"image,omitempty"`
-	ContainerName string          `yaml:"container_name,omitempty"`
-	Environment map[string]string `yaml:"environment,omitempty"`
-	Ports       []string          `yaml:"ports,omitempty"`
-	Volumes     []string          `yaml:"volumes,omitempty"`
-	Command     string            `yaml:"command,omitempty"`
-	Networks    []string          `yaml:"networks,omitempty"`
+	Image         string            `yaml:"image,omitempty"`
+	ContainerName string            `yaml:"container_name,omitempty"`
+	Environment   map[string]string `yaml:"environment,omitempty"`
+	Ports         []string          `yaml:"ports,omitempty"`
+	Volumes       []string          `yaml:"volumes,omitempty"`
+	Command       string            `yaml:"command,omitempty"`
+	Networks      []string          `yaml:"networks,omitempty"`
+	HealthCheck   *HealthCheck      `yaml:"healthcheck,omitempty"`
+	DependsOn     map[string]any    `yaml:"depends_on,omitempty"`
+	Restart       string            `yaml:"restart,omitempty"`
 }
 
 // ComposeFile represents a Docker Compose file structure.
@@ -158,4 +171,47 @@ func (c *ComposeFile) String() (string, error) {
 		return "", fmt.Errorf("failed to marshal compose file: %w", err)
 	}
 	return string(data), nil
+}
+
+// AddHealthCheck adds a healthcheck to the service.
+func (s *Service) AddHealthCheck(interval, timeout string, retries int, testCmd ...string) {
+	s.HealthCheck = &HealthCheck{
+		Test:        testCmd,
+		Interval:    interval,
+		Timeout:     timeout,
+		Retries:     retries,
+		StartPeriod: "10s",
+	}
+}
+
+// AddDependsOn adds a dependency on another service.
+func (s *Service) AddDependsOn(serviceName string, condition string) {
+	if s.DependsOn == nil {
+		s.DependsOn = make(map[string]any)
+	}
+	if condition != "" {
+		s.DependsOn[serviceName] = map[string]string{"condition": condition}
+	} else {
+		s.DependsOn[serviceName] = nil
+	}
+}
+
+// SetRestart sets the restart policy.
+func (s *Service) SetRestart(policy string) {
+	s.Restart = policy
+}
+
+// DetectComposeVersion detects whether docker compose v2 or v1 is available.
+// Returns "v2" for "docker compose", "v1" for "docker-compose", or error if neither.
+func DetectComposeVersion() (string, error) {
+	// Try v2 first (docker compose)
+	cmd := exec.Command("docker", "compose", "version")
+	if err := cmd.Run(); err == nil {
+		return "v2", nil
+	}
+	// Fall back to v1 (docker-compose)
+	if _, err := exec.LookPath("docker-compose"); err == nil {
+		return "v1", nil
+	}
+	return "", fmt.Errorf("neither 'docker compose' nor 'docker-compose' found in PATH")
 }

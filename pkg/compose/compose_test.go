@@ -18,6 +18,9 @@ func TestNewRunner(t *testing.T) {
 	if r.composeFile != "docker-compose.yml" {
 		t.Errorf("expected composeFile docker-compose.yml, got %s", r.composeFile)
 	}
+	if r.version != VersionV2 {
+		t.Errorf("expected version v2, got %s", r.version)
+	}
 }
 
 func TestNewRunnerWithFile(t *testing.T) {
@@ -27,6 +30,20 @@ func TestNewRunnerWithFile(t *testing.T) {
 	}
 	if r.composeFile != "custom-compose.yml" {
 		t.Errorf("expected composeFile custom-compose.yml, got %s", r.composeFile)
+	}
+}
+
+func TestRunnerSetVersion(t *testing.T) {
+	r := NewRunner("test")
+
+	r.SetVersion(VersionV1)
+	if r.GetVersion() != VersionV1 {
+		t.Errorf("expected version v1, got %s", r.GetVersion())
+	}
+
+	r.SetVersion(VersionV2)
+	if r.GetVersion() != VersionV2 {
+		t.Errorf("expected version v2, got %s", r.GetVersion())
 	}
 }
 
@@ -59,6 +76,57 @@ func TestGeneratePostgresService(t *testing.T) {
 	}
 	if svc.ContainerName != "postgres_test" {
 		t.Errorf("expected postgres_test, got %s", svc.ContainerName)
+	}
+}
+
+func TestGenerateMySQLServiceWithHealthCheck(t *testing.T) {
+	cfg := config.DefaultMySQLConfig()
+	cfg.Username = "testuser"
+	cfg.Password = "testpass"
+	cfg.Database = "testdb"
+
+	svc := GenerateMySQLServiceWithHealthCheck("mysql_hc", cfg)
+
+	if svc.HealthCheck == nil {
+		t.Fatal("expected healthcheck to be set")
+	}
+
+	if len(svc.HealthCheck.Test) != 5 {
+		t.Errorf("expected 5 test cmd parts, got %d", len(svc.HealthCheck.Test))
+	}
+
+	if svc.HealthCheck.Interval != "10s" {
+		t.Errorf("expected interval 10s, got %s", svc.HealthCheck.Interval)
+	}
+
+	if svc.Restart != "unless-stopped" {
+		t.Errorf("expected restart unless-stopped, got %s", svc.Restart)
+	}
+}
+
+func TestGeneratePostgresServiceWithHealthCheck(t *testing.T) {
+	cfg := config.DefaultPostgresConfig()
+	cfg.Username = "pguser"
+	cfg.Password = "pgpass"
+	cfg.Database = "pgdb"
+
+	svc := GeneratePostgresServiceWithHealthCheck("pg_hc", cfg)
+
+	if svc.HealthCheck == nil {
+		t.Fatal("expected healthcheck to be set")
+	}
+
+	// pg_isready -U pguser => ["CMD", "pg_isready", "-U", "pguser"] = 4 parts
+	if len(svc.HealthCheck.Test) != 4 {
+		t.Errorf("expected 4 test cmd parts, got %d: %v", len(svc.HealthCheck.Test), svc.HealthCheck.Test)
+	}
+
+	if svc.HealthCheck.Interval != "10s" {
+		t.Errorf("expected interval 10s, got %s", svc.HealthCheck.Interval)
+	}
+
+	if svc.Restart != "unless-stopped" {
+		t.Errorf("expected restart unless-stopped, got %s", svc.Restart)
 	}
 }
 
@@ -184,6 +252,9 @@ func TestTemplateMySQL(t *testing.T) {
 	if !strings.Contains(template, "MYSQL_ROOT_PASSWORD") {
 		t.Error("template should contain MYSQL_ROOT_PASSWORD")
 	}
+	if !strings.Contains(template, "healthcheck:") {
+		t.Error("template should contain healthcheck")
+	}
 }
 
 func TestTemplatePostgres(t *testing.T) {
@@ -193,6 +264,9 @@ func TestTemplatePostgres(t *testing.T) {
 	}
 	if !strings.Contains(template, "POSTGRES_USER") {
 		t.Error("template should contain POSTGRES_USER")
+	}
+	if !strings.Contains(template, "healthcheck:") {
+		t.Error("template should contain healthcheck")
 	}
 }
 
@@ -206,6 +280,9 @@ func TestTemplateMySQLPostgres(t *testing.T) {
 	}
 	if !strings.Contains(template, "volumes:") {
 		t.Error("template should contain volumes")
+	}
+	if !strings.Contains(template, "healthcheck:") {
+		t.Error("template should contain healthcheck")
 	}
 }
 
@@ -225,5 +302,29 @@ func TestWriteTemplate(t *testing.T) {
 
 	if !strings.Contains(string(data), "mysql:8.0") {
 		t.Error("written template should contain mysql:8.0")
+	}
+}
+
+func TestEnsureDockerCompose(t *testing.T) {
+	// This test just verifies the function doesn't panic
+	err := EnsureDockerCompose()
+	if err != nil {
+		t.Logf("EnsureDockerCompose: %v (docker not available in test env)", err)
+	}
+}
+
+func TestEnsureDocker(t *testing.T) {
+	// This test just verifies the function doesn't panic
+	err := EnsureDocker()
+	if err != nil {
+		t.Logf("EnsureDocker: %v (docker not available in test env)", err)
+	}
+}
+
+func TestRunnerDetectVersion(t *testing.T) {
+	r := NewRunner("test")
+	err := r.DetectVersion()
+	if err != nil {
+		t.Logf("DetectVersion: %v (docker not available in test env)", err)
 	}
 }

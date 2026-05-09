@@ -40,6 +40,7 @@ func AddCommands() {
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(stopCmd)
 	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(composeCmd)
 }
 
 func printVersion() {

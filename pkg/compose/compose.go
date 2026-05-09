@@ -15,10 +15,43 @@ import (
 	internalsvc "github.com/atop0914/containerdb-bootcamp/internal/compose"
 )
 
+// Re-export types from internal/compose for public API use.
+type (
+	// Service represents a single service in a Docker Compose file.
+	Service = internalsvc.Service
+	// HealthCheck represents a Docker health check configuration.
+	HealthCheck = internalsvc.HealthCheck
+	// ComposeFile represents a Docker Compose file structure.
+	ComposeFile = internalsvc.ComposeFile
+)
+
+// Re-export functions from internal/compose for public API use.
+var (
+	// BuildComposeFile creates a complete Docker Compose file from services.
+	BuildComposeFile = internalsvc.BuildComposeFile
+	// Parse reads and parses a Docker Compose file from the given path.
+	Parse = internalsvc.Parse
+	// ParseFromString parses a Docker Compose file from a string.
+	ParseFromString = internalsvc.ParseFromString
+	// DetectComposeVersion detects whether docker compose v2 or v1 is available.
+	DetectComposeVersion = internalsvc.DetectComposeVersion
+)
+
+// ComposeVersion represents the Docker Compose CLI version.
+type ComposeVersion string
+
+const (
+	// VersionV1 is the legacy docker-compose (Python) CLI.
+	VersionV1 ComposeVersion = "v1"
+	// VersionV2 is the new docker compose (Go plugin) CLI.
+	VersionV2 ComposeVersion = "v2"
+)
+
 // Runner handles docker-compose operations for containerized databases.
 type Runner struct {
 	composeFile string
 	projectName string
+	version     ComposeVersion
 }
 
 // NewRunner creates a new compose runner with the specified project name.
@@ -26,6 +59,7 @@ func NewRunner(projectName string) *Runner {
 	return &Runner{
 		composeFile: "docker-compose.yml",
 		projectName: projectName,
+		version:     VersionV2, // default to v2
 	}
 }
 
@@ -34,11 +68,43 @@ func NewRunnerWithFile(projectName, composeFile string) *Runner {
 	return &Runner{
 		composeFile: composeFile,
 		projectName: projectName,
+		version:     VersionV2,
 	}
 }
 
+// SetVersion sets the compose CLI version to use.
+func (r *Runner) SetVersion(v ComposeVersion) {
+	r.version = v
+}
+
+// GetVersion returns the current compose version setting.
+func (r *Runner) GetVersion() ComposeVersion {
+	return r.version
+}
+
+// DetectVersion auto-detects the available compose version.
+func (r *Runner) DetectVersion() error {
+	v, err := internalsvc.DetectComposeVersion()
+	if err != nil {
+		return err
+	}
+	r.version = ComposeVersion(v)
+	return nil
+}
+
+// buildCommand constructs the appropriate docker compose command.
+func (r *Runner) buildCommand(args ...string) *exec.Cmd {
+	if r.version == VersionV1 {
+		cmdArgs := append([]string{"-p", r.projectName, "-f", r.composeFile}, args...)
+		return exec.Command("docker-compose", cmdArgs...)
+	}
+	// V2: docker compose -p project -f file args...
+	cmdArgs := append([]string{"compose", "-p", r.projectName, "-f", r.composeFile}, args...)
+	return exec.Command("docker", cmdArgs...)
+}
+
 // GenerateMySQLService generates a compose service for MySQL from config.
-func GenerateMySQLService(name string, cfg *config.MySQLConfig) internalsvc.Service {
+func GenerateMySQLService(name string, cfg *config.MySQLConfig) Service {
 	return internalsvc.GenerateMySQLCompose(
 		name,
 		cfg.Image,
@@ -50,7 +116,7 @@ func GenerateMySQLService(name string, cfg *config.MySQLConfig) internalsvc.Serv
 }
 
 // GeneratePostgresService generates a compose service for PostgreSQL from config.
-func GeneratePostgresService(name string, cfg *config.PostgresConfig) internalsvc.Service {
+func GeneratePostgresService(name string, cfg *config.PostgresConfig) Service {
 	return internalsvc.GeneratePostgresCompose(
 		name,
 		cfg.Image,
@@ -61,69 +127,122 @@ func GeneratePostgresService(name string, cfg *config.PostgresConfig) internalsv
 	)
 }
 
+// GenerateMySQLServiceWithHealthCheck generates a compose service with healthcheck.
+func GenerateMySQLServiceWithHealthCheck(name string, cfg *config.MySQLConfig) Service {
+	svc := GenerateMySQLService(name, cfg)
+	svc.AddHealthCheck("10s", "5s", 5,
+		"CMD", "mysqladmin", "ping", "-h", "localhost",
+	)
+	svc.SetRestart("unless-stopped")
+	return svc
+}
+
+// GeneratePostgresServiceWithHealthCheck generates a compose service with healthcheck.
+func GeneratePostgresServiceWithHealthCheck(name string, cfg *config.PostgresConfig) Service {
+	svc := GeneratePostgresService(name, cfg)
+	svc.AddHealthCheck("10s", "5s", 5,
+		"CMD", "pg_isready", "-U", cfg.Username,
+	)
+	svc.SetRestart("unless-stopped")
+	return svc
+}
+
 // GenerateFile creates a docker-compose.yml file with the given services.
-func (r *Runner) GenerateFile(services map[string]internalsvc.Service, dir string) error {
+func (r *Runner) GenerateFile(services map[string]Service, dir string) error {
 	cf := internalsvc.BuildComposeFile(services)
 	path := filepath.Join(dir, r.composeFile)
 	return cf.WriteToFile(path)
 }
 
 // GenerateFileTo generates a docker-compose.yml file at a specific path.
-func (r *Runner) GenerateFileTo(services map[string]internalsvc.Service, path string) error {
+func (r *Runner) GenerateFileTo(services map[string]Service, path string) error {
 	cf := internalsvc.BuildComposeFile(services)
 	return cf.WriteToFile(path)
 }
 
 // Up starts the docker-compose services.
 func (r *Runner) Up(ctx context.Context, dir string) error {
-	cmd := exec.Command("docker-compose", "-p", r.projectName, "-f", r.composeFile, "up", "-d")
+	cmd := r.buildCommand("up", "-d")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("docker-compose up failed: %w\n%s", err, output)
+		return fmt.Errorf("compose up failed: %w\n%s", err, output)
+	}
+	return nil
+}
+
+// UpWithWait starts services and waits for healthchecks to pass.
+func (r *Runner) UpWithWait(ctx context.Context, dir string) error {
+	cmd := r.buildCommand("up", "-d", "--wait")
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("compose up --wait failed: %w\n%s", err, output)
 	}
 	return nil
 }
 
 // Down stops and removes the docker-compose services.
 func (r *Runner) Down(ctx context.Context, dir string) error {
-	cmd := exec.Command("docker-compose", "-p", r.projectName, "-f", r.composeFile, "down")
+	cmd := r.buildCommand("down")
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("docker-compose down failed: %w\n%s", err, output)
+		return fmt.Errorf("compose down failed: %w\n%s", err, output)
+	}
+	return nil
+}
+
+// DownWithVolumes stops and removes services and their volumes.
+func (r *Runner) DownWithVolumes(ctx context.Context, dir string) error {
+	cmd := r.buildCommand("down", "-v")
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("compose down -v failed: %w\n%s", err, output)
 	}
 	return nil
 }
 
 // Ps shows the status of docker-compose services.
 func (r *Runner) Ps(ctx context.Context, dir string) (string, error) {
-	cmd := exec.Command("docker-compose", "-p", r.projectName, "-f", r.composeFile, "ps")
+	cmd := r.buildCommand("ps")
 	cmd.Dir = dir
 	output, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("docker-compose ps failed: %w", err)
+		return "", fmt.Errorf("compose ps failed: %w", err)
 	}
 	return string(output), nil
 }
 
 // Logs shows the logs of docker-compose services.
 func (r *Runner) Logs(ctx context.Context, dir string, service string) (string, error) {
-	args := []string{"-p", r.projectName, "-f", r.composeFile, "logs"}
+	args := []string{"logs"}
 	if service != "" {
 		args = append(args, service)
 	}
-	cmd := exec.Command("docker-compose", args...)
+	cmd := r.buildCommand(args...)
 	cmd.Dir = dir
 	output, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("docker-compose logs failed: %w", err)
+		return "", fmt.Errorf("compose logs failed: %w", err)
+	}
+	return string(output), nil
+}
+
+// Status shows the health status of services.
+func (r *Runner) Status(ctx context.Context, dir string) (string, error) {
+	cmd := r.buildCommand("ps", "--format", "json")
+	cmd.Dir = dir
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("compose status failed: %w", err)
 	}
 	return string(output), nil
 }
 
 // ParseExisting reads and parses an existing docker-compose.yml file.
-func ParseExisting(path string) (*internalsvc.ComposeFile, error) {
+func ParseExisting(path string) (*ComposeFile, error) {
 	return internalsvc.Parse(path)
 }
 
@@ -202,6 +321,13 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+    restart: "unless-stopped"
 volumes:
   mysql_data:
 `
@@ -222,6 +348,13 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+    restart: "unless-stopped"
 volumes:
   pg_data:
 `
@@ -241,6 +374,13 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+    restart: "unless-stopped"
 
   postgres:
     image: postgres:16-alpine
@@ -253,6 +393,13 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: "10s"
+      timeout: "5s"
+      retries: 5
+      start_period: "10s"
+    restart: "unless-stopped"
 
 volumes:
   mysql_data:
@@ -260,13 +407,20 @@ volumes:
 `
 }
 
-// EnsureDockerCompose checks if docker-compose is available.
+// EnsureDockerCompose checks if docker compose is available.
 func EnsureDockerCompose() error {
-	_, err := exec.LookPath("docker-compose")
+	v, err := internalsvc.DetectComposeVersion()
 	if err != nil {
-		return fmt.Errorf("docker-compose not found in PATH: %w", err)
+		return err
 	}
-	return nil
+	if v == "v2" {
+		return nil
+	}
+	// Also check v1
+	if _, err := exec.LookPath("docker-compose"); err == nil {
+		return nil
+	}
+	return fmt.Errorf("docker compose not available")
 }
 
 // EnsureDocker checks if docker is available.
