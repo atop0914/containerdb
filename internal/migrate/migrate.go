@@ -62,6 +62,14 @@ type Migration struct {
 	Direction Direction
 }
 
+// Status represents the status of a migration.
+type Status struct {
+	Version    string
+	Name       string
+	Applied    bool
+	AppliedAt  *time.Time
+}
+
 // Run executes migrations from a directory.
 func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 	cfg := defaultConfig()
@@ -122,6 +130,148 @@ func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 	}
 
 	return nil
+}
+
+// Rollback rolls back the last N applied migrations.
+func Rollback(ctx context.Context, db *sql.DB, dir string, steps int, opts ...Option) error {
+	cfg := defaultConfig()
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	// Get applied versions in reverse order
+	appliedVersions, err := getAppliedVersions(ctx, db, cfg.TableName)
+	if err != nil {
+		return fmt.Errorf("failed to get applied versions: %w", err)
+	}
+
+	if len(appliedVersions) == 0 {
+		return nil
+	}
+
+	// Read down migrations
+	downMigrations, err := ReadDirectionalMigrations(dir, Down)
+	if err != nil {
+		return fmt.Errorf("failed to read down migrations: %w", err)
+	}
+
+	// Create a map of down migrations by version
+	downMap := make(map[string]Migration)
+	for _, m := range downMigrations {
+		downMap[m.Version] = m
+	}
+
+	// Rollback specified number of steps
+	if steps <= 0 || steps > len(appliedVersions) {
+		steps = len(appliedVersions)
+	}
+
+	for i := 0; i < steps; i++ {
+		version := appliedVersions[i]
+		down, ok := downMap[version]
+		if !ok {
+			return fmt.Errorf("no down migration found for version %s", version)
+		}
+
+		sqlContent, err := os.ReadFile(down.Name)
+		if err != nil {
+			return fmt.Errorf("failed to read down migration %s: %w", down.Name, err)
+		}
+
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return fmt.Errorf("failed to begin transaction: %w", err)
+		}
+
+		_, err = tx.ExecContext(ctx, string(sqlContent))
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to execute down migration %s: %w", version, err)
+		}
+
+		_, err = tx.ExecContext(ctx,
+			fmt.Sprintf("DELETE FROM %s WHERE version = ?", cfg.TableName),
+			version)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to delete migration record %s: %w", version, err)
+		}
+
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("failed to commit rollback %s: %w", version, err)
+		}
+	}
+
+	return nil
+}
+
+// GetStatus returns the status of all migrations in a directory.
+func GetStatus(ctx context.Context, db *sql.DB, dir string, opts ...Option) ([]Status, error) {
+	cfg := defaultConfig()
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	migrations, err := ReadMigrations(dir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read migrations: %w", err)
+	}
+
+	// Ensure migration table exists
+	if err := createMigrationsTable(ctx, db, cfg.TableName); err != nil {
+		return nil, err
+	}
+
+	// Get applied versions with timestamps
+	appliedMap, err := getAppliedVersionsWithTime(ctx, db, cfg.TableName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get applied versions: %w", err)
+	}
+
+	statuses := make([]Status, 0, len(migrations))
+	for _, m := range migrations {
+		s := Status{
+			Version: m.Version,
+			Name:    filepath.Base(m.Name),
+			Applied: false,
+		}
+		if appliedAt, ok := appliedMap[m.Version]; ok {
+			s.Applied = true
+			s.AppliedAt = &appliedAt
+		}
+		statuses = append(statuses, s)
+	}
+
+	return statuses, nil
+}
+
+// CreateMigration creates a new migration file pair (up and down).
+func CreateMigration(dir, name string) (string, error) {
+	// Ensure directory exists
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create migrations directory: %w", err)
+	}
+
+	// Generate version from timestamp
+	version := time.Now().Format("20060102150405")
+	
+	// Clean the name
+	name = strings.ReplaceAll(name, " ", "_")
+	name = strings.ToLower(name)
+
+	// Create up migration
+	upFile := filepath.Join(dir, fmt.Sprintf("%s_%s.up.sql", version, name))
+	if err := os.WriteFile(upFile, []byte("-- Migration: "+name+"\n\n"), 0644); err != nil {
+		return "", fmt.Errorf("failed to create up migration: %w", err)
+	}
+
+	// Create down migration
+	downFile := filepath.Join(dir, fmt.Sprintf("%s_%s.down.sql", version, name))
+	if err := os.WriteFile(downFile, []byte("-- Rollback: "+name+"\n\n"), 0644); err != nil {
+		return "", fmt.Errorf("failed to create down migration: %w", err)
+	}
+
+	return version, nil
 }
 
 // ReadMigrations reads migration files from a directory.
@@ -200,6 +350,47 @@ func isApplied(ctx context.Context, db *sql.DB, tableName, version string) (bool
 		return false, err
 	}
 	return true, nil
+}
+
+// getAppliedVersions returns all applied versions in reverse order.
+func getAppliedVersions(ctx context.Context, db *sql.DB, tableName string) ([]string, error) {
+	query := fmt.Sprintf("SELECT version FROM %s ORDER BY applied_at DESC", tableName)
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var versions []string
+	for rows.Next() {
+		var version string
+		if err := rows.Scan(&version); err != nil {
+			return nil, err
+		}
+		versions = append(versions, version)
+	}
+	return versions, nil
+}
+
+// getAppliedVersionsWithTime returns a map of version to applied time.
+func getAppliedVersionsWithTime(ctx context.Context, db *sql.DB, tableName string) (map[string]time.Time, error) {
+	query := fmt.Sprintf("SELECT version, applied_at FROM %s", tableName)
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make(map[string]time.Time)
+	for rows.Next() {
+		var version string
+		var appliedAt time.Time
+		if err := rows.Scan(&version, &appliedAt); err != nil {
+			return nil, err
+		}
+		result[version] = appliedAt
+	}
+	return result, nil
 }
 
 // Force sets the migration version without running migrations.

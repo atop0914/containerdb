@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 )
+
 func TestReadMigrations(t *testing.T) {
 	// Create temp migration directory
 	tmpDir, err := os.MkdirTemp("", "migrations-*")
@@ -137,5 +138,127 @@ func TestConfigOptions(t *testing.T) {
 	opt2(&cfg)
 	if cfg.Timeout != 60*time.Second {
 		t.Errorf("expected timeout 60s, got %v", cfg.Timeout)
+	}
+}
+
+func TestReadDirectionalMigrations(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "migrations-directional-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create both up and down migrations
+	files := []struct {
+		name    string
+		content string
+	}{
+		{"001_create_users.up.sql", "CREATE TABLE users (id INT PRIMARY KEY);"},
+		{"001_create_users.down.sql", "DROP TABLE users;"},
+		{"002_create_posts.up.sql", "CREATE TABLE posts (id INT PRIMARY KEY);"},
+		{"002_create_posts.down.sql", "DROP TABLE posts;"},
+	}
+	for _, f := range files {
+		if err := os.WriteFile(filepath.Join(tmpDir, f.name), []byte(f.content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Read up migrations
+	upMigrations, err := ReadDirectionalMigrations(tmpDir, Up)
+	if err != nil {
+		t.Fatalf("ReadDirectionalMigrations(Up) failed: %v", err)
+	}
+	if len(upMigrations) != 2 {
+		t.Errorf("expected 2 up migrations, got %d", len(upMigrations))
+	}
+	for _, m := range upMigrations {
+		if m.Direction != Up {
+			t.Errorf("expected Up direction, got %v", m.Direction)
+		}
+	}
+
+	// Read down migrations
+	downMigrations, err := ReadDirectionalMigrations(tmpDir, Down)
+	if err != nil {
+		t.Fatalf("ReadDirectionalMigrations(Down) failed: %v", err)
+	}
+	if len(downMigrations) != 2 {
+		t.Errorf("expected 2 down migrations, got %d", len(downMigrations))
+	}
+	for _, m := range downMigrations {
+		if m.Direction != Down {
+			t.Errorf("expected Down direction, got %v", m.Direction)
+		}
+	}
+}
+
+func TestCreateMigration(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "migrations-create-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	version, err := CreateMigration(tmpDir, "Create Users Table")
+	if err != nil {
+		t.Fatalf("CreateMigration failed: %v", err)
+	}
+
+	if version == "" {
+		t.Error("expected non-empty version")
+	}
+
+	// Check that files were created
+	entries, err := os.ReadDir(tmpDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(entries) != 2 {
+		t.Errorf("expected 2 files, got %d", len(entries))
+	}
+
+	// Check file names
+	foundUp := false
+	foundDown := false
+	for _, entry := range entries {
+		name := entry.Name()
+		if name == version+"_create_users_table.up.sql" {
+			foundUp = true
+		}
+		if name == version+"_create_users_table.down.sql" {
+			foundDown = true
+		}
+	}
+
+	if !foundUp {
+		t.Error("up migration file not found")
+	}
+	if !foundDown {
+		t.Error("down migration file not found")
+	}
+}
+
+func TestCreateMigrationWithSubdirectory(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "migrations-subdir-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	subDir := filepath.Join(tmpDir, "migrations")
+	version, err := CreateMigration(subDir, "test")
+	if err != nil {
+		t.Fatalf("CreateMigration failed: %v", err)
+	}
+
+	if version == "" {
+		t.Error("expected non-empty version")
+	}
+
+	// Check that directory was created
+	if _, err := os.Stat(subDir); os.IsNotExist(err) {
+		t.Error("migrations directory was not created")
 	}
 }

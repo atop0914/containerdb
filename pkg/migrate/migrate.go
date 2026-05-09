@@ -4,47 +4,72 @@ package migrate
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/atop0914/containerdb-bootcamp/internal/migrate"
 )
 
 // Runner handles database migrations for containerized databases.
 type Runner struct {
-	db       *sql.DB
-	opts     []migrate.Option
-	migrationsDir string
+	db            *sql.DB
+	dir           string
+	opts          []migrate.Option
+}
+
+// Option configures the Runner.
+type Option func(*Runner)
+
+// WithDir sets the migrations directory.
+func WithDir(dir string) Option {
+	return func(r *Runner) {
+		r.dir = dir
+	}
+}
+
+// WithTableName sets the migration tracking table name.
+func WithTableName(name string) Option {
+	return func(r *Runner) {
+		r.opts = append(r.opts, migrate.WithTableName(name))
+	}
+}
+
+// WithTimeout sets the timeout for each migration step.
+func WithTimeout(d time.Duration) Option {
+	return func(r *Runner) {
+		r.opts = append(r.opts, migrate.WithTimeout(d))
+	}
 }
 
 // NewRunner creates a new migration runner.
-func NewRunner(db *sql.DB, opts ...migrate.Option) *Runner {
-	return &Runner{
-		db:             db,
-		opts:           opts,
-		migrationsDir:  "migrations",
+func NewRunner(db *sql.DB, opts ...Option) *Runner {
+	r := &Runner{
+		db:  db,
+		dir: "migrations",
 	}
+	for _, opt := range opts {
+		opt(r)
+	}
+	return r
 }
 
 // Up runs all pending up migrations.
 func (r *Runner) Up(ctx context.Context) error {
-	return migrate.Run(ctx, r.db, r.migrationsDir, r.opts...)
+	return migrate.Run(ctx, r.db, r.dir, r.opts...)
 }
 
-// Down rolls back the last migration.
-func (r *Runner) Down(ctx context.Context) error {
-	migrations, err := migrate.ReadDirectionalMigrations(r.migrationsDir, migrate.Down)
-	if err != nil {
-		return err
-	}
+// Down rolls back the last N migrations. If steps <= 0, rolls back all.
+func (r *Runner) Down(ctx context.Context, steps int) error {
+	return migrate.Rollback(ctx, r.db, r.dir, steps, r.opts...)
+}
 
-	if len(migrations) == 0 {
-		return nil
-	}
+// Status returns the status of all migrations.
+func (r *Runner) Status(ctx context.Context) ([]migrate.Status, error) {
+	return migrate.GetStatus(ctx, r.db, r.dir, r.opts...)
+}
 
-	// Get current version (last applied)
-	last := migrations[len(migrations)-1]
-	
-	_, err = r.db.ExecContext(ctx, last.Name)
-	return err
+// CreateMigration creates a new migration file pair (up and down).
+func CreateMigration(dir, name string) (string, error) {
+	return migrate.CreateMigration(dir, name)
 }
 
 // ListMigrations returns all available migrations.
