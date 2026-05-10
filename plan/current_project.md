@@ -43,13 +43,16 @@ https://github.com/atop0914/containerdb-bootcamp
 **Week 2 - Day 10 完成**
 
 Day 10 完成内容：
-- ✅ 添加 `internal/compose` 包，compose 文件解析和生成
-- ✅ 支持解析现有的 docker-compose.yml 文件
-- ✅ 生成 MySQL 和 PostgreSQL 服务配置
-- ✅ 添加 `pkg/compose` 包，高级 compose runner
-- ✅ 支持 docker-compose up/down/ps/logs 操作
-- ✅ 提供模板函数快速生成 compose 文件
-- ✅ 编写完整的单元测试（21 个测试用例）
+- ✅ 添加 Docker Compose V2 (docker compose) 和 V1 (docker-compose) 双版本支持
+- ✅ 为 compose 服务添加健康检查（HealthCheck）配置支持
+- ✅ 添加 depends_on 依赖关系和 restart 重启策略支持
+- ✅ 新增 CLI 命令：containerdb compose init/up/down/status/logs
+- ✅ 生成包含健康检查的 MySQL 和 PostgreSQL 模板
+- ✅ 添加 GenerateMySQLServiceWithHealthCheck/GeneratePostgresServiceWithHealthCheck
+- ✅ 在 pkg/compose 中重新导出内部类型，提供公共 API
+- ✅ 添加 compose 示例（examples/compose/）
+- ✅ 修复 examples 目录结构（分离 main 包）
+- ✅ 所有测试通过，代码已推送到 dev 分支
 
 ## 下一步
 等待 Day 11 任务：完善文档，编写使用指南。
