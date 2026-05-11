@@ -31,8 +31,8 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 | Day 8 | 添加连接池配置、健康检查增强 | ✅ done |
 | Day 9 | 实现数据迁移辅助工具（migrate integration） | ✅ done |
 | Day 10 | 添加 Docker Compose 兼容模式 | ✅ done |
-| Day 11 | 完善文档，编写使用指南 | todo |
-| Day 12 | 添加性能基准测试 | todo |
+| Day 11 | 完善文档，编写使用指南 | ✅ done |
+| Day 12 | 添加性能基准测试 | ✅ done |
 | Day 13 | 代码优化，清理 TODO，提交 v1.0.0 | todo |
 | Day 14 | 发布 Release，完善 CI/CD | todo |
 
@@ -40,19 +40,17 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 https://github.com/atop0914/containerdb-bootcamp
 
 ## 当前阶段
-**Week 2 - Day 10 完成**
+**Week 2 - Day 12 完成**
 
-Day 10 完成内容：
-- ✅ 添加 Docker Compose V2 (docker compose) 和 V1 (docker-compose) 双版本支持
-- ✅ 为 compose 服务添加健康检查（HealthCheck）配置支持
-- ✅ 添加 depends_on 依赖关系和 restart 重启策略支持
-- ✅ 新增 CLI 命令：containerdb compose init/up/down/status/logs
-- ✅ 生成包含健康检查的 MySQL 和 PostgreSQL 模板
-- ✅ 添加 GenerateMySQLServiceWithHealthCheck/GeneratePostgresServiceWithHealthCheck
-- ✅ 在 pkg/compose 中重新导出内部类型，提供公共 API
-- ✅ 添加 compose 示例（examples/compose/）
-- ✅ 修复 examples 目录结构（分离 main 包）
-- ✅ 所有测试通过，代码已推送到 dev 分支
+Day 12 完成内容：
+- ✅ 添加 SQLite 性能基准测试（InMemory、TempDB、CRUD 操作、并行读取）
+- ✅ 添加配置包基准测试（MySQL、PostgreSQL、SQLite 配置创建）
+- ✅ 添加连接池基准测试（配置应用、统计获取、TracedDB 操作）
+- ✅ 添加健康检查基准测试（Check、WaitForReady 延迟）
+- ✅ 添加 Compose 基准测试（服务生成、文件构建、模板生成）
+- ✅ 创建 Makefile 包含基准测试目标
+- ✅ 添加 benchmarks/README.md 使用文档
+- ✅ 所有基准测试通过，代码已推送到 dev 分支
 
 ## 下一步
-等待 Day 11 任务：完善文档，编写使用指南。
+等待 Day 13 任务：代码优化，清理 TODO，提交 v1.0.0。
