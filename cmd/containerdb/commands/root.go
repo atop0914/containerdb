@@ -4,8 +4,18 @@ package commands
 import (
 	"fmt"
 
+	"github.com/atop0914/containerdb-bootcamp/internal/version"
 	"github.com/spf13/cobra"
 )
+
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print version information",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(version.Info())
+	},
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -41,8 +51,9 @@ func AddCommands() {
 	rootCmd.AddCommand(stopCmd)
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(composeCmd)
+	rootCmd.AddCommand(versionCmd)
 }
 
 func printVersion() {
-	fmt.Println("containerdb version 0.1.0")
+	fmt.Println(version.Info())
 }
