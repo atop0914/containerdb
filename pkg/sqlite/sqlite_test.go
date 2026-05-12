@@ -120,19 +120,6 @@ func TestNewWithOptions_InvalidMode(t *testing.T) {
 	}
 }
 
-func TestPool(t *testing.T) {
-	db, cleanup, err := InMemory()
-	if err != nil {
-		t.Fatalf("InMemory() failed: %v", err)
-	}
-	defer cleanup()
-
-	pool := Pool(db)
-	if pool != db {
-		t.Fatalf("Pool() should return the same *sql.DB")
-	}
-}
-
 func TestSQLite_CRUD(t *testing.T) {
 	db, cleanup, err := InMemory()
 	if err != nil {

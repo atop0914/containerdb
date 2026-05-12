@@ -143,7 +143,3 @@ func newSQLite(cfg *config.SQLiteConfig) (*sql.DB, func(), error) {
 	return db, cleanup, nil
 }
 
-// Pool exposes the underlying *sql.DB for direct use.
-func Pool(db *sql.DB) *sql.DB {
-	return db
-}

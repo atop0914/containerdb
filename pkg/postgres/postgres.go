@@ -159,7 +159,7 @@ func NewWithConfig(ctx context.Context, cfg *config.PostgresConfig) (*sql.DB, fu
 func MustNew(ctx context.Context) (*sql.DB, func()) {
 	db, cleanup, err := New(ctx)
 	if err != nil {
-		panic("postgres.MustNew: " + err.Error())
+		panic(fmt.Errorf("MustNew failed: %w", err))
 	}
 	return db, cleanup
 }
@@ -168,7 +168,7 @@ func MustNew(ctx context.Context) (*sql.DB, func()) {
 func MustNewWithOptions(ctx context.Context, opts ...Option) (*sql.DB, func()) {
 	db, cleanup, err := NewWithOptions(ctx, opts...)
 	if err != nil {
-		panic("postgres.MustNewWithOptions: " + err.Error())
+		panic(fmt.Errorf("MustNewWithOptions failed: %w", err))
 	}
 	return db, cleanup
 }
