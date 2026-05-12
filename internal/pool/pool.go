@@ -86,14 +86,7 @@ func Configure(db *sql.DB, cfg *PoolConfig) error {
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
 	db.SetMaxIdleConns(cfg.MaxIdleConns)
 	db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
-	if v := reflectOK(db, "SetConnMaxIdleTime"); v != nil {
-		db.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
-	}
-	return nil
-}
-
-func reflectOK(db *sql.DB, name string) interface{} {
-	// SetConnMaxIdleTime was added in Go 1.15
+	db.SetConnMaxIdleTime(cfg.ConnMaxIdleTime)
 	return nil
 }
 
@@ -201,8 +194,9 @@ func (t *TracedDB) ExecContext(ctx context.Context, query string, args ...interf
 func (t *TracedDB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	start := time.Now()
 	row := t.DB.QueryRowContext(ctx, query, args...)
-	go func() {
-		time.Sleep(time.Until(start.Add(time.Millisecond * 100)))
-	}()
+	d := time.Since(start)
+	if d > 0 && t.SlowLog != nil {
+		t.SlowLog(query, d)
+	}
 	return row
 }
