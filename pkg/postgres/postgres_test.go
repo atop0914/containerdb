@@ -11,6 +11,9 @@ import (
 
 // TestNewPostgresBasic tests basic PostgreSQL container creation.
 func TestNewPostgresBasic(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -35,6 +38,9 @@ func TestNewPostgresBasic(t *testing.T) {
 
 // TestNewPostgresWithOptions tests PostgreSQL container with functional options.
 func TestNewPostgresWithOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := NewWithOptions(ctx,
 		WithImage("postgres:16-alpine"),
@@ -55,6 +61,9 @@ func TestNewPostgresWithOptions(t *testing.T) {
 
 // TestNewPostgresWithPoolSettings tests connection pool configuration.
 func TestNewPostgresWithPoolSettings(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := NewWithOptions(ctx,
 		WithPoolSettings(5, 2, 30*time.Minute),
@@ -80,6 +89,9 @@ func TestNewPostgresWithPoolSettings(t *testing.T) {
 
 // TestMustNewPostgres tests MustNew panic behavior with invalid image.
 func TestMustNewPostgres(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 
 	// This should not panic (valid image)
@@ -99,6 +111,9 @@ func TestMustNewPostgres(t *testing.T) {
 
 // TestPostgresConnection tests that we can execute SQL statements.
 func TestPostgresConnection(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -141,6 +156,9 @@ func TestPostgresConnection(t *testing.T) {
 
 // TestPostgresMultipleConns tests multiple concurrent connections.
 func TestPostgresMultipleConns(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping PostgreSQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {

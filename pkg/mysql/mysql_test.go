@@ -9,6 +9,9 @@ import (
 
 // TestNewMySQLBasic tests basic MySQL container creation.
 func TestNewMySQLBasic(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -33,6 +36,9 @@ func TestNewMySQLBasic(t *testing.T) {
 
 // TestNewMySQLWithOptions tests MySQL container with functional options.
 func TestNewMySQLWithOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := NewWithOptions(ctx,
 		WithImage("mysql:8.0"),
@@ -61,6 +67,9 @@ func TestNewMySQLWithOptions(t *testing.T) {
 
 // TestNewMySQLWithPoolSettings tests connection pool configuration.
 func TestNewMySQLWithPoolSettings(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := NewWithOptions(ctx,
 		WithPoolSettings(5, 2, 30*time.Minute),
@@ -86,6 +95,9 @@ func TestNewMySQLWithPoolSettings(t *testing.T) {
 
 // TestMustNewMySQL tests MustNew panic behavior.
 func TestMustNewMySQL(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 
 	// This should not panic (valid image)
@@ -102,6 +114,9 @@ func TestMustNewMySQL(t *testing.T) {
 
 // TestMustNewMySQLWithOptions tests MustNewWithOptions.
 func TestMustNewMySQLWithOptions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup := MustNewWithOptions(ctx, WithImage("mysql:8.0"))
 	if db == nil {
@@ -116,6 +131,9 @@ func TestMustNewMySQLWithOptions(t *testing.T) {
 
 // TestMySQLConnection tests that we can execute SQL statements.
 func TestMySQLConnection(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -158,6 +176,9 @@ func TestMySQLConnection(t *testing.T) {
 
 // TestMySQLMultipleConns tests multiple concurrent connections.
 func TestMySQLMultipleConns(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -190,6 +211,9 @@ func TestMySQLMultipleConns(t *testing.T) {
 
 // TestMySQLTransaction tests transaction support.
 func TestMySQLTransaction(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
@@ -243,6 +267,9 @@ func TestMySQLTransaction(t *testing.T) {
 
 // TestMySQLPreparedStatements tests prepared statement usage.
 func TestMySQLPreparedStatements(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping MySQL container test in short mode")
+	}
 	ctx := context.Background()
 	db, cleanup, err := New(ctx)
 	if err != nil {
