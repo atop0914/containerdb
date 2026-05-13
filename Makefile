@@ -34,7 +34,35 @@ bench-stat:
 	@echo "Results saved to bench-results.txt"
 	@echo "Use 'benchstat' to compare with previous runs"
 
+# Build binaries for release
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT  := $(shell git rev-parse --short HEAD)
+DATE    := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+LDFLAGS := -s -w \
+	-X github.com/atop0914/containerdb-bootcamp/internal/version.Version=$(VERSION) \
+	-X github.com/atop0914/containerdb-bootcamp/internal/version.GitCommit=$(COMMIT) \
+	-X github.com/atop0914/containerdb-bootcamp/internal/version.BuildDate=$(DATE)
+
+build:
+	go build -ldflags="$(LDFLAGS)" -o containerdb ./cmd/containerdb/
+
+build-all:
+	@mkdir -p dist
+	@for pair in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64; do \
+		GOOS=$${pair%/*} GOARCH=$${pair#*/} EXT=""; \
+		if [ "$$GOOS" = "windows" ]; then EXT=".exe"; fi; \
+		OUT="dist/containerdb-$$GOOS-$$GOARCH$$EXT"; \
+		echo "Building $$OUT..."; \
+		GOOS=$$GOOS GOARCH=$$GOARCH go build -ldflags="$(LDFLAGS)" -o "$$OUT" ./cmd/containerdb/; \
+	done
+	@echo "Build complete: dist/"
+
+# Run golangci-lint
+lint:
+	golangci-lint run ./...
+
 # Clean generated files
 clean:
 	rm -f bench-results.txt
 	rm -f /tmp/testdb-*.sqlite
+	rm -rf dist/

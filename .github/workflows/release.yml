@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run tests
+        run: go test ./internal/... ./pkg/... -short -timeout=120s
+
+      - name: Build binaries
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          COMMIT=$(git rev-parse --short HEAD)
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          LDFLAGS="-s -w -X github.com/atop0914/containerdb-bootcamp/internal/version.Version=${VERSION} -X github.com/atop0914/containerdb-bootcamp/internal/version.GitCommit=${COMMIT} -X github.com/atop0914/containerdb-bootcamp/internal/version.BuildDate=${DATE}"
+
+          for GOOS in linux darwin windows; do
+            for GOARCH in amd64 arm64; do
+              if [ "$GOOS" = "windows" ] && [ "$GOARCH" = "arm64" ]; then
+                continue
+              fi
+              EXT=""
+              if [ "$GOOS" = "windows" ]; then
+                EXT=".exe"
+              fi
+              OUTPUT="containerdb-${GOOS}-${GOARCH}${EXT}"
+              echo "Building ${OUTPUT}..."
+              GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="${LDFLAGS}" -o "dist/${OUTPUT}" ./cmd/containerdb/
+              sha256sum "dist/${OUTPUT}" >> dist/checksums.txt
+            done
+          done
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract the latest version section from CHANGELOG.md
+          VERSION=${GITHUB_REF#refs/tags/}
+          # Get everything between the first ## [x.y.z] and the next ## [
+          sed -n "/^## \[${VERSION}\]/,/^## \[/p" CHANGELOG.md | sed '$d' > release_notes.md || true
+          # Fallback: if no matching section found, use tag name
+          if [ ! -s release_notes.md ]; then
+            echo "## ${VERSION}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> release_notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            dist/containerdb-*
+            dist/checksums.txt
+          generate_release_notes: false
+          draft: false
+          prerelease: false
