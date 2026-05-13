@@ -1,0 +1,128 @@
+# ContainerDB 开发日志
+
+## 2026-05-03 (Day 5) ✅
+- 为 mysql 包添加 functional options 模式（WithImage, WithUsername, WithPassword, WithDatabase, WithHealthCheckTimeout, WithPoolSettings）
+- 添加 MustNew, MustNewWithOptions, NewWithOptionsContainer 便捷函数
+- 编写 mysql 包完整单元测试（9个测试用例）
+- 添加 internal/config 配置包单元测试（6个测试用例）
+- 添加 internal/container 工具包单元测试（4个测试用例）
+- 添加 internal/database 数据库包装器单元测试（6个测试用例）
+- ✅ 成功推送到 GitHub dev 分支 (3 commits)
+
+### Commits:
+- 3ce857e test(config,container): add unit tests for internal packages
+- 473520c test(database): add unit tests for database wrapper
+- d2285ae feat(mysql): add functional options pattern and comprehensive tests
+
+### Day 5 详细改动:
+- pkg/mysql/mysql.go: 添加 Option 类型和 WithXXX 函数, NewWithOptions, MustNew, MustNewWithOptions, NewWithOptionsContainer
+- pkg/mysql/mysql_test.go: 新增 9 个单元测试（基本功能、连接池、事务、预处理语句等）
+- internal/config/config_test.go: 新增 6 个配置相关测试
+- internal/container/container_test.go: 新增 4 个容器工具测试
+- internal/database/database_test.go: 新增 6 个数据库包装器测试
+
+## 2026-05-02 (Day 4) ✅
+- 完成 SQLite 辅助工具，添加 functional options 模式
+- 修复 mysql/postgres 使用 ConnectionString API (testcontainers-go v0.42.0+)
+- 移除 internal/container 中无用导入
+- ✅ 成功推送到 GitHub dev 分支 (1 commit)
+
+### Commits:
+- 8b17d43 feat(sqlite): add functional options and enhanced SQLite support
+
+### Day 4 详细改动:
+- internal/config/config.go: 添加 SQLiteConfig (Mode, Path, Cache)
+- pkg/sqlite/sqlite.go: 添加 functional options (WithMode, WithPath, WithCache)、NewWithOptions、InMemory、TempDB、Pool
+- pkg/sqlite/sqlite_test.go: 新增 11 个单元测试
+- examples/sqlite_example_test.go: 新增 3 个示例测试
+- pkg/mysql/mysql.go: 使用 ConnectionString() 替代 HostPort() API
+- pkg/postgres/postgres.go: 使用 ConnectionString() API
+
+## 2026-05-01 (Day 3) ✅
+- 完成 PostgreSQL 容器封装增强，添加 functional options 模式
+- 修复 testcontainers-go 0.42.0 API 兼容问题（使用 ConnectionString 替代 HostPort）
+- 修复 MySQL 包同样使用 ConnectionString API
+- 移除 internal/container 中无用的 testcontainers 导入
+- 添加 PostgreSQL 包单元测试
+- ✅ 成功推送到 GitHub (5 commits)
+
+### Commits:
+- ba39f7a refactor: update config structs with connection pool fields
+- 22e50ce feat(postgres): add functional options and connection string support
+- a9c61c2 test(postgres): add comprehensive test suite for postgres package
+- ef4a4ac fix(mysql): use ConnectionString instead of deprecated HostPort API
+- 711c9b2 chore: remove unused testcontainers imports from container package
+
+### Day 3 详细改动:
+- internal/config/config.go: PostgresConfig 添加 MaxOpenConns, MaxIdleConns, ConnMaxLifetime
+- pkg/postgres/postgres.go: 添加 Option 类型和 WithXXX 函数, 使用 ConnectionString()
+- pkg/postgres/postgres.go: 添加 MustNew, MustNewWithOptions, NewWithOptions, Container 函数
+- pkg/mysql/mysql.go: 使用 ConnectionString() 替代 HostPort() API
+- pkg/postgres/postgres_test.go: 新增测试文件
+
+## 2026-04-30 (Day 2) ✅
+- 完成 MySQL 容器封装增强，添加 functional options 模式
+- PostgreSQL 包同样添加 functional options
+- 修复 testcontainers-go 0.42.0 API 兼容问题
+- 添加 MySQL 包单元测试
+- ✅ 成功推送到 GitHub (1 commit)
+
+### Commits:
+- d37a147 refactor: improve config struct with connection pool settings
+
+### Day 2 详细改动:
+- internal/config/config.go: 添加 MaxOpenConns, MaxIdleConns, ConnMaxLifetime
+- pkg/mysql/mysql.go: 添加 Option 类型和 WithXXX 函数, 使用 ConnectionString()
+- pkg/postgres/postgres.go: 添加 Option 类型和 WithXXX 函数
+- pkg/mysql/mysql_test.go: 新增测试文件
+
+## 2026-04-30 (Day 1) ✅
+- 完成项目调研，选定 ContainerDB 方向
+- 创建 GitHub 仓库 atop0914/containerdb-bootcamp
+- 完成项目基础架构搭建
+- ✅ 成功推送到 GitHub (2 commits)
+
+### Commits:
+- 60a2213 feat: add project structure and basic files
+- 8fe2e18 docs: update README title formatting
+
+## 2026-05-04 (Day 6) ✅
+- 添加 CLI 工具，基于 cobra 框架实现
+- 实现 start 命令：支持 MySQL 和 PostgreSQL，使用 functional options 模式
+- 实现 status 命令：显示 Docker 容器状态
+- 实现 stop 命令：提供容器停止指导
+- 添加 CLI 单元测试
+- ✅ 成功推送到 GitHub dev 分支 (1 commit)
+
+### Commits:
+- 9a40bf6 feat(cli): add containerdb CLI tool with start/status/stop commands
+
+### Day 6 详细改动:
+- cmd/containerdb/main.go: CLI 入口文件
+- cmd/containerdb/commands/root.go: 根命令定义，使用说明
+- cmd/containerdb/commands/start.go: 启动数据库容器，支持 mysql/postgres
+- cmd/containerdb/commands/status.go: 查看容器状态
+- cmd/containerdb/commands/stop.go: 停止容器指导
+- cmd/containerdb/commands_test/cli_test.go: CLI 单元测试
+- go.mod: 添加 cobra 依赖
+
+## 2026-05-05 (Day 8) ✅
+- 添加 `internal/health` 健康检查包，支持重试逻辑
+- 添加 `internal/pool` 连接池监控包，获取统计数据
+- MySQL 和 PostgreSQL 配置新增 `HealthCheckRetries` 和 `HealthCheckInterval` 选项
+- 新增 `WithHealthCheckRetry` 和 `WithHealthCheckInterval` 函数选项
+- 编写健康检查和连接池监控的单元测试
+- ✅ 成功推送到 GitHub dev 分支 (1 commit)
+
+### Commits:
+- f2fc88e feat: add connection pool monitoring and health check utilities
+
+### Day 8 详细改动:
+- internal/health/health.go: 新增健康检查包，含 Check、WaitForReady 函数
+- internal/health/health_test.go: 新增健康检查单元测试（8个测试用例）
+- internal/pool/pool.go: 新增连接池监控包，含 Stats、Configure、Monitor、TracedDB
+- internal/pool/pool_test.go: 新增连接池监控单元测试（10个测试用例）
+- internal/config/config.go: MySQLConfig 和 PostgresConfig 新增 HealthCheckRetries、HealthCheckInterval
+- pkg/mysql/mysql.go: 新增 WithHealthCheckRetry、WithHealthCheckInterval 选项
+- pkg/mysql/mysql_test.go: 修复 MaxIdleConnections -> MaxIdleConns
+- pkg/postgres/postgres.go: 新增 WithHealthCheckRetry、WithHealthCheckInterval 选项

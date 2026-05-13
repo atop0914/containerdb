@@ -1,0 +1,21 @@
+2026-05-09 20:33 - Day 9: 实现数据迁移辅助工具（migrate integration）
+- 增强 internal/migrate 包，添加 Rollback 函数支持回滚最后 N 个迁移
+- 添加 GetStatus 函数检查迁移状态（已应用/待处理）
+- 添加 CreateMigration 辅助函数生成迁移文件对（up/down）
+- 支持基于时间戳的迁移命名
+- 为新功能编写全面的单元测试
+- 添加迁移工作流示例（examples/migrate_example.go）
+- 更新 pkg/migrate 公共 API，提供更好的 Runner 接口
+- 所有测试通过，代码已推送到 dev 分支
+
+2026-05-10 20:33 - Day 10: 添加 Docker Compose 兼容模式
+- 添加 Docker Compose V2 (docker compose) 和 V1 (docker-compose) 双版本支持
+- 为 compose 服务添加健康检查（HealthCheck）配置支持
+- 添加 depends_on 依赖关系和 restart 重启策略支持
+- 新增 CLI 命令：containerdb compose init/up/down/status/logs
+- 生成包含健康检查的 MySQL 和 PostgreSQL 模板
+- 添加 GenerateMySQLServiceWithHealthCheck/GeneratePostgresServiceWithHealthCheck
+- 在 pkg/compose 中重新导出内部类型，提供公共 API
+- 添加 compose 示例（examples/compose/）
+- 修复 examples 目录结构（分离 main 包）
+- 所有测试通过，代码已推送到 dev 分支

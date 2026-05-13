@@ -7,10 +7,6 @@ import (
 	"net"
 	"strconv"
 	"time"
-
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
-	"github.com/testcontainers/testcontainers-go/modules/mysql"
 )
 
 // AvailablePort finds an available port on localhost.
