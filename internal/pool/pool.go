@@ -12,13 +12,13 @@ import (
 // Stats holds connection pool statistics.
 type Stats struct {
 	MaxOpenConnections int
-	OpenConnections     int
-	InUse               int
-	Idle                int
-	WaitCount           int64
-	WaitDuration        time.Duration
-	MaxIdleClosed       int64
-	MaxLifetimeClosed   int64
+	OpenConnections    int
+	InUse              int
+	Idle               int
+	WaitCount          int64
+	WaitDuration       time.Duration
+	MaxIdleClosed      int64
+	MaxLifetimeClosed  int64
 }
 
 // GetStats retrieves current pool statistics.
@@ -26,13 +26,13 @@ func GetStats(db *sql.DB) *Stats {
 	stats := db.Stats()
 	return &Stats{
 		MaxOpenConnections: stats.MaxOpenConnections,
-		OpenConnections:     stats.OpenConnections,
-		InUse:               stats.InUse,
-		Idle:                stats.Idle,
-		WaitCount:           stats.WaitCount,
-		WaitDuration:        stats.WaitDuration,
-		MaxIdleClosed:       stats.MaxIdleClosed,
-		MaxLifetimeClosed:   stats.MaxLifetimeClosed,
+		OpenConnections:    stats.OpenConnections,
+		InUse:              stats.InUse,
+		Idle:               stats.Idle,
+		WaitCount:          stats.WaitCount,
+		WaitDuration:       stats.WaitDuration,
+		MaxIdleClosed:      stats.MaxIdleClosed,
+		MaxLifetimeClosed:  stats.MaxLifetimeClosed,
 	}
 }
 

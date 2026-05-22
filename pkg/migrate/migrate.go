@@ -11,9 +11,9 @@ import (
 
 // Runner handles database migrations for containerized databases.
 type Runner struct {
-	db            *sql.DB
-	dir           string
-	opts          []migrate.Option
+	db   *sql.DB
+	dir  string
+	opts []migrate.Option
 }
 
 // Option configures the Runner.

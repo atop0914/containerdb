@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/atop0914/containerdb/internal/config"
 	"github.com/atop0914/containerdb/internal/compose"
+	"github.com/atop0914/containerdb/internal/config"
 )
 
 func TestNewRunner(t *testing.T) {

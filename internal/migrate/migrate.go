@@ -64,10 +64,10 @@ type Migration struct {
 
 // Status represents the status of a migration.
 type Status struct {
-	Version    string
-	Name       string
-	Applied    bool
-	AppliedAt  *time.Time
+	Version   string
+	Name      string
+	Applied   bool
+	AppliedAt *time.Time
 }
 
 // Run executes migrations from a directory.
@@ -254,7 +254,7 @@ func CreateMigration(dir, name string) (string, error) {
 
 	// Generate version from timestamp
 	version := time.Now().Format("20060102150405")
-	
+
 	// Clean the name
 	name = strings.ReplaceAll(name, " ", "_")
 	name = strings.ToLower(name)

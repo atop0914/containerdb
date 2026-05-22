@@ -27,7 +27,7 @@ func AvailablePort() (int, error) {
 func WaitForPort(host string, port int, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	
+
 	endpoint := net.JoinHostPort(host, strconv.Itoa(port))
 	for {
 		select {

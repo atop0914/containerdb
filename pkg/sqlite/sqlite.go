@@ -142,4 +142,3 @@ func newSQLite(cfg *config.SQLiteConfig) (*sql.DB, func(), error) {
 
 	return db, cleanup, nil
 }
-

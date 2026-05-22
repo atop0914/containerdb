@@ -94,7 +94,7 @@ func (s *Service) GetPort(containerPort string) (string, error) {
 func GenerateMySQLCompose(serviceName, image, username, password, database string, port string) Service {
 	env := map[string]string{
 		"MYSQL_ROOT_PASSWORD": password,
-		"MYSQL_DATABASE":     database,
+		"MYSQL_DATABASE":      database,
 	}
 	if username != "root" {
 		env["MYSQL_USER"] = username

@@ -81,9 +81,9 @@ var composeLogsCmd = &cobra.Command{
 
 // Compose flags
 var (
-	composeType       string
-	composeImage      string
-	composePort       string
+	composeType        string
+	composeImage       string
+	composePort        string
 	composeUsername    string
 	composePassword    string
 	composeDatabase    string

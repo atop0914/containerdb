@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atop0914/containerdb/internal/config"
 	internalsvc "github.com/atop0914/containerdb/internal/compose"
+	"github.com/atop0914/containerdb/internal/config"
 )
 
 // Re-export types from internal/compose for public API use.
