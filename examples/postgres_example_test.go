@@ -9,6 +9,9 @@ import (
 )
 
 func TestPostgres_Example(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping postgres example in short mode")
+	}
 	ctx := context.Background()
 	
 	db, cleanup, err := postgres.New(ctx)

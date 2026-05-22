@@ -9,6 +9,9 @@ import (
 )
 
 func TestMySQL_Example(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping mysql example in short mode")
+	}
 	ctx := context.Background()
 	
 	db, cleanup, err := mysql.New(ctx)
