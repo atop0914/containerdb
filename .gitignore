@@ -1,5 +1,5 @@
 # Binaries
-containerdb
+/containerdb
 *.exe
 *.dll
 *.so

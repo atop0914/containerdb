@@ -19,3 +19,39 @@
 - 添加 compose 示例（examples/compose/）
 - 修复 examples 目录结构（分离 main 包）
 - 所有测试通过，代码已推送到 dev 分支
+
+2026-05-11 20:33 - Day 11: 完善文档，编写使用指南（已在之前完成）
+- 添加完整文档套件（docs/）
+- 更新 README.md
+- 所有文档已推送到 dev 分支
+
+2026-05-12 20:33 - Day 12: 添加性能基准测试（已在之前完成）
+- 添加 SQLite 性能基准测试
+- 添加配置包基准测试
+- 添加连接池基准测试
+- 添加健康检查基准测试
+- 添加 Compose 基准测试
+- 创建 Makefile 包含基准测试目标
+- 添加 benchmarks/README.md 使用文档
+- 所有基准测试通过，代码已推送到 dev 分支
+
+2026-05-12 20:33 - Day 13: 代码优化，清理 TODO，提交 v1.0.0
+- 修复 pool.TracedDB.QueryRowContext 中的 goroutine 泄漏 bug（无意义的 sleep goroutine）
+- 清理 pool.Configure 中的死代码（reflectOK 始终返回 nil，SetConnMaxIdleTime 永远不会被调用）
+- 新增 internal/version 包，支持构建时 ldflags 注入版本信息
+- 添加 `containerdb version` CLI 命令
+- 统一 mysql/postgres MustNew 的 panic 错误格式
+- 移除无用的 sqlite.Pool() 函数（恒等函数，无实际价值）
+- 添加 CHANGELOG.md（v1.0.0 发布记录）
+- 所有测试通过，代码已推送到 dev 分支
+
+2026-05-13 20:33 - Day 14: 发布 Release，完善 CI/CD
+- 修复 MySQL/PostgreSQL 测试不尊重 -short 标志的 bug（CI 无 Docker 环境可正确跳过）
+- 添加 GitHub Actions CI 工作流（Go 1.22-1.25 矩阵测试、lint、5 平台交叉编译）
+- 添加 GitHub Actions Release 工作流（打 tag 自动构建二进制、生成 changelog、创建 Release）
+- 添加 golangci-lint 配置文件
+- 更新 Makefile：添加 build/build-all/lint 目标，支持 ldflags 版本注入
+- 更新 .gitignore 排除 dist/ 目录
+- 合并 dev → main，创建 v1.0.0 tag
+- 所有测试通过，代码已推送到 dev 和 main 分支
+- 🎉 ContainerDB v1.0.0 发布完成！

@@ -33,24 +33,26 @@ A lightweight containerized database toolkit for Go development and testing. Spi
 | Day 10 | 添加 Docker Compose 兼容模式 | ✅ done |
 | Day 11 | 完善文档，编写使用指南 | ✅ done |
 | Day 12 | 添加性能基准测试 | ✅ done |
-| Day 13 | 代码优化，清理 TODO，提交 v1.0.0 | todo |
-| Day 14 | 发布 Release，完善 CI/CD | todo |
+| Day 13 | 代码优化，清理 TODO，提交 v1.0.0 | ✅ done |
+| Day 14 | 发布 Release，完善 CI/CD | ✅ done |
 
 ## GitHub 仓库
 https://github.com/atop0914/containerdb-bootcamp
 
 ## 当前阶段
-**Week 2 - Day 12 完成**
+**🎉 2周计划全部完成！v1.0.0 已发布**
 
-Day 12 完成内容：
-- ✅ 添加 SQLite 性能基准测试（InMemory、TempDB、CRUD 操作、并行读取）
-- ✅ 添加配置包基准测试（MySQL、PostgreSQL、SQLite 配置创建）
-- ✅ 添加连接池基准测试（配置应用、统计获取、TracedDB 操作）
-- ✅ 添加健康检查基准测试（Check、WaitForReady 延迟）
-- ✅ 添加 Compose 基准测试（服务生成、文件构建、模板生成）
-- ✅ 创建 Makefile 包含基准测试目标
-- ✅ 添加 benchmarks/README.md 使用文档
-- ✅ 所有基准测试通过，代码已推送到 dev 分支
+Day 14 完成内容：
+- ✅ 修复 MySQL/PostgreSQL 测试不尊重 -short 标志的 bug（CI 无 Docker 环境可正确跳过）
+- ✅ 添加 GitHub Actions CI 工作流（Go 1.22-1.25 矩阵测试、lint、5 平台交叉编译）
+- ✅ 添加 GitHub Actions Release 工作流（打 tag 自动构建二进制、生成 changelog、创建 Release）
+- ✅ 添加 golangci-lint 配置文件
+- ✅ 更新 Makefile：添加 build/build-all/lint 目标，支持 ldflags 版本注入
+- ✅ 更新 .gitignore 排除 dist/ 目录
+- ✅ 合并 dev → main，创建 v1.0.0 tag
+- ✅ 所有测试通过，代码已推送到 dev 和 main 分支
 
-## 下一步
-等待 Day 13 任务：代码优化，清理 TODO，提交 v1.0.0。
+## 发布信息
+- **v1.0.0** tag 已推送到 GitHub
+- CI/CD 流水线已就绪，后续 push 到 main/dev 自动触发测试
+- 打 v* tag 自动触发 Release 构建
