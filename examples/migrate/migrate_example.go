@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/migrate"
+	"github.com/atop0914/containerdb/pkg/migrate"
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -2,8 +2,8 @@
 
 A lightweight containerized database toolkit for Go development and testing. Spin up real databases in containers with a single function call — no Docker Compose required.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/atop0914/containerdb-bootcamp.svg)](https://pkg.go.dev/github.com/atop0914/containerdb-bootcamp)
-[![Go Report Card](https://goreportcard.com/badge/github.com/atop0914/containerdb-bootcamp)](https://goreportcard.com/report/github.com/atop0914/containerdb-bootcamp)
+[![Go Reference](https://pkg.go.dev/badge/github.com/atop0914/containerdb.svg)](https://pkg.go.dev/github.com/atop0914/containerdb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/atop0914/containerdb)](https://goreportcard.com/report/github.com/atop0914/containerdb)
 
 ## Features
 
@@ -26,7 +26,7 @@ import (
     "context"
     "testing"
 
-    "github.com/atop0914/containerdb-bootcamp/pkg/mysql"
+    "github.com/atop0914/containerdb/pkg/mysql"
 )
 
 func TestDatabase(t *testing.T) {
@@ -73,13 +73,13 @@ func TestDatabase(t *testing.T) {
 ## Installation
 
 ```bash
-go get github.com/atop0914/containerdb-bootcamp
+go get github.com/atop0914/containerdb
 ```
 
 ### CLI Tool
 
 ```bash
-go install github.com/atop0914/containerdb-bootcamp/cmd/containerdb@latest
+go install github.com/atop0914/containerdb/cmd/containerdb@latest
 ```
 
 ## Usage
@@ -87,7 +87,7 @@ go install github.com/atop0914/containerdb-bootcamp/cmd/containerdb@latest
 ### MySQL
 
 ```go
-import "github.com/atop0914/containerdb-bootcamp/pkg/mysql"
+import "github.com/atop0914/containerdb/pkg/mysql"
 
 // Default settings
 db, cleanup, err := mysql.New(ctx)
@@ -107,7 +107,7 @@ defer cleanup()
 ### PostgreSQL
 
 ```go
-import "github.com/atop0914/containerdb-bootcamp/pkg/postgres"
+import "github.com/atop0914/containerdb/pkg/postgres"
 
 // Default settings
 db, cleanup, err := postgres.New(ctx)
@@ -124,7 +124,7 @@ defer cleanup()
 ### SQLite
 
 ```go
-import "github.com/atop0914/containerdb-bootcamp/pkg/sqlite"
+import "github.com/atop0914/containerdb/pkg/sqlite"
 
 // In-memory (fastest)
 db, cleanup, err := sqlite.InMemory()
@@ -138,7 +138,7 @@ defer cleanup()
 ### Migrations
 
 ```go
-import "github.com/atop0914/containerdb-bootcamp/pkg/migrate"
+import "github.com/atop0914/containerdb/pkg/migrate"
 
 runner := migrate.NewRunner(db,
     migrate.WithDir("migrations"),
@@ -161,7 +161,7 @@ path, err := migrate.CreateMigration("migrations", "add_users_table")
 ### Docker Compose
 
 ```go
-import "github.com/atop0914/containerdb-bootcamp/pkg/compose"
+import "github.com/atop0914/containerdb/pkg/compose"
 
 runner := compose.NewRunner("myproject")
 

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/pool"
-	"github.com/atop0914/containerdb-bootcamp/pkg/sqlite"
+	"github.com/atop0914/containerdb/internal/pool"
+	"github.com/atop0914/containerdb/pkg/sqlite"
 )
 
 // BenchmarkDefaultPoolConfig measures default pool config creation.

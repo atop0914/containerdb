@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/postgres"
+	"github.com/atop0914/containerdb/pkg/postgres"
 )
 
 func TestPostgres_Example(t *testing.T) {

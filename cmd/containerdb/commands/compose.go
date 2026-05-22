@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
-	"github.com/atop0914/containerdb-bootcamp/pkg/compose"
+	"github.com/atop0914/containerdb/internal/config"
+	"github.com/atop0914/containerdb/pkg/compose"
 	"github.com/spf13/cobra"
 )
 

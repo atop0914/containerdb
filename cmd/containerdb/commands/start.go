@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/mysql"
-	"github.com/atop0914/containerdb-bootcamp/pkg/postgres"
+	"github.com/atop0914/containerdb/pkg/mysql"
+	"github.com/atop0914/containerdb/pkg/postgres"
 	"github.com/spf13/cobra"
 )
 

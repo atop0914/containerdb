@@ -9,7 +9,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
+	"github.com/atop0914/containerdb/internal/config"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
 )
 

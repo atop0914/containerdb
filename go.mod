@@ -1,4 +1,4 @@
-module github.com/atop0914/containerdb-bootcamp
+module github.com/atop0914/containerdb
 
 go 1.25.0
 

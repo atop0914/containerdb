@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/atop0914/containerdb-bootcamp/cmd/containerdb/commands"
+	"github.com/atop0914/containerdb/cmd/containerdb/commands"
 )
 
 func main() {

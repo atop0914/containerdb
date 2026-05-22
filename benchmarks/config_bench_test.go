@@ -3,7 +3,7 @@ package benchmarks
 import (
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
+	"github.com/atop0914/containerdb/internal/config"
 )
 
 // BenchmarkDefaultMySQLConfig measures MySQL config creation.

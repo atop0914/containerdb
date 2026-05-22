@@ -3,9 +3,9 @@ package benchmarks
 import (
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
-	internalsvc "github.com/atop0914/containerdb-bootcamp/internal/compose"
-	pkgcompose "github.com/atop0914/containerdb-bootcamp/pkg/compose"
+	"github.com/atop0914/containerdb/internal/config"
+	internalsvc "github.com/atop0914/containerdb/internal/compose"
+	pkgcompose "github.com/atop0914/containerdb/pkg/compose"
 )
 
 // BenchmarkCompose_GenerateMySQLCompose measures MySQL service generation (internal).

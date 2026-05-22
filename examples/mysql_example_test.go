@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/mysql"
+	"github.com/atop0914/containerdb/pkg/mysql"
 )
 
 func TestMySQL_Example(t *testing.T) {

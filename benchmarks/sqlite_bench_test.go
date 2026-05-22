@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/sqlite"
+	"github.com/atop0914/containerdb/pkg/sqlite"
 )
 
 // BenchmarkSQLite_InMemory measures in-memory SQLite creation and teardown.

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/health"
-	"github.com/atop0914/containerdb-bootcamp/pkg/sqlite"
+	"github.com/atop0914/containerdb/internal/health"
+	"github.com/atop0914/containerdb/pkg/sqlite"
 )
 
 // BenchmarkHealth_DefaultConfig measures health config creation.

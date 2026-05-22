@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/migrate"
+	"github.com/atop0914/containerdb/internal/migrate"
 )
 
 // Runner handles database migrations for containerized databases.

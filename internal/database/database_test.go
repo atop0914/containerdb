@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/sqlite"
+	"github.com/atop0914/containerdb/pkg/sqlite"
 )
 
 func TestDB_Ping(t *testing.T) {

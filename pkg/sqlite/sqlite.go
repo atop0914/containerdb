@@ -9,7 +9,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
+	"github.com/atop0914/containerdb/internal/config"
 )
 
 // Option is a functional option for SQLite configuration.

@@ -4,7 +4,7 @@ package commands
 import (
 	"fmt"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/version"
+	"github.com/atop0914/containerdb/internal/version"
 	"github.com/spf13/cobra"
 )
 

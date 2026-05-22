@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
-	internalsvc "github.com/atop0914/containerdb-bootcamp/internal/compose"
+	"github.com/atop0914/containerdb/internal/config"
+	internalsvc "github.com/atop0914/containerdb/internal/compose"
 )
 
 // Re-export types from internal/compose for public API use.
