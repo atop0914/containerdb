@@ -112,7 +112,7 @@ func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 
 		_, err = tx.ExecContext(ctx, string(sqlContent))
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to execute migration %s: %w", m.Version, err)
 		}
 
@@ -120,7 +120,7 @@ func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 			fmt.Sprintf("INSERT INTO %s (version, applied_at) VALUES (?, ?)", cfg.TableName),
 			m.Version, time.Now())
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to record migration %s: %w", m.Version, err)
 		}
 
@@ -185,7 +185,7 @@ func Rollback(ctx context.Context, db *sql.DB, dir string, steps int, opts ...Op
 
 		_, err = tx.ExecContext(ctx, string(sqlContent))
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to execute down migration %s: %w", version, err)
 		}
 
@@ -193,7 +193,7 @@ func Rollback(ctx context.Context, db *sql.DB, dir string, steps int, opts ...Op
 			fmt.Sprintf("DELETE FROM %s WHERE version = ?", cfg.TableName),
 			version)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to delete migration record %s: %w", version, err)
 		}
 

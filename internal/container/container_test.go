@@ -34,8 +34,9 @@ func TestWaitForPort_NotAvailable(t *testing.T) {
 }
 
 func TestWaitForPort_Timeout(t *testing.T) {
-	// Use a non-routable IP to ensure it times out
-	err := WaitForPort("192.0.2.1", 12345, 150*time.Millisecond)
+	// Use localhost with a port that's not listening to trigger timeout
+	// (connection refused causes retries until context deadline)
+	err := WaitForPort("localhost", 59999, 150*time.Millisecond)
 	if err == nil {
 		t.Error("expected timeout error, got nil")
 	}

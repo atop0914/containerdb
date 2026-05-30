@@ -29,17 +29,16 @@ func WaitForPort(host string, port int, timeout time.Duration) error {
 	defer cancel()
 
 	endpoint := net.JoinHostPort(host, strconv.Itoa(port))
+	dialer := &net.Dialer{Timeout: 500 * time.Millisecond}
 	for {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("timeout waiting for %s", endpoint)
-		default:
-			conn, err := net.DialTimeout("tcp", endpoint, 500*time.Millisecond)
-			if err == nil {
-				conn.Close()
-				return nil
-			}
-			time.Sleep(100 * time.Millisecond)
+		conn, err := dialer.DialContext(ctx, "tcp", endpoint)
+		if err == nil {
+			conn.Close()
+			return nil
 		}
+		if ctx.Err() != nil {
+			return fmt.Errorf("timeout waiting for %s", endpoint)
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 }

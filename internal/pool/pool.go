@@ -153,7 +153,6 @@ func (m *Monitor) Stop() {
 type TracedDB struct {
 	DB      *sql.DB
 	SlowLog func(query string, duration time.Duration)
-	mu      sync.Mutex
 }
 
 // NewTracedDB creates a traced database wrapper.
