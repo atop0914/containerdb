@@ -1,6 +1,7 @@
 package benchmarks
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -76,7 +77,7 @@ func BenchmarkPool_TracedDB_ExecContext(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := traced.ExecContext(nil, "INSERT INTO bench (value) VALUES (?)", "test")
+		_, err := traced.ExecContext(context.Background(), "INSERT INTO bench (value) VALUES (?)", "test")
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -104,7 +105,7 @@ func BenchmarkPool_TracedDB_QueryContext(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		rows, err := traced.QueryContext(nil, "SELECT id, value FROM bench LIMIT 10")
+		rows, err := traced.QueryContext(context.Background(), "SELECT id, value FROM bench LIMIT 10")
 		if err != nil {
 			b.Fatal(err)
 		}
