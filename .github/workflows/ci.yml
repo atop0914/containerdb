@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         go-version: ['1.25', '1.26']
@@ -25,10 +26,11 @@ jobs:
         run: go test -short -v -race -count=1 ./...
 
       - name: Run benchmarks
-        run: go test -bench=. -benchmem ./... -count=1
+        run: go test -bench=. -benchmem -run=^$ -count=1 ./...
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
