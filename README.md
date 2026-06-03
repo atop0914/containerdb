@@ -1,4 +1,5 @@
 # ContainerDB
+[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 
 A lightweight containerized database toolkit for Go development and testing. Spin up real databases in containers with a single function call — no Docker Compose required.
 
