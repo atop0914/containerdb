@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/atop0914/containerdb-bootcamp/internal/config"
 	"github.com/atop0914/containerdb-bootcamp/pkg/compose"
-	"github.com/spf13/cobra"
 )
 
 var composeCmd = &cobra.Command{
@@ -31,7 +32,7 @@ Examples:
   containerdb compose status                  # Show service status
   containerdb compose logs                    # Show service logs`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
@@ -81,9 +82,9 @@ var composeLogsCmd = &cobra.Command{
 
 // Compose flags
 var (
-	composeType       string
-	composeImage      string
-	composePort       string
+	composeType        string
+	composeImage       string
+	composePort        string
 	composeUsername    string
 	composePassword    string
 	composeDatabase    string
@@ -355,6 +356,6 @@ func runComposeLogs(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	fmt.Fprint(os.Stdout, output)
+	_, _ = fmt.Fprint(os.Stdout, output)
 	return nil
 }

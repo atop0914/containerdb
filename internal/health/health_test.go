@@ -7,19 +7,6 @@ import (
 	"time"
 )
 
-// mockDB is a simple mock for testing
-type mockDB struct {
-	pingErr error
-	pingFn  func() error
-}
-
-func (m *mockDB) PingContext(ctx context.Context) error {
-	if m.pingFn != nil {
-		return m.pingFn()
-	}
-	return m.pingErr
-}
-
 func TestDefaultConfig(t *testing.T) {
 	cfg := DefaultConfig()
 	if cfg.Timeout != 30*time.Second {

@@ -9,8 +9,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
+
+	"github.com/atop0914/containerdb-bootcamp/internal/config"
 )
 
 // Option is a functional option for MySQL configuration.
@@ -109,13 +110,13 @@ func NewWithConfig(ctx context.Context, cfg *config.MySQLConfig) (*sql.DB, func(
 	// Get connection details using ConnectionString (v0.42.0+ API)
 	connStr, err := mysqlContainer.ConnectionString(ctx)
 	if err != nil {
-		mysqlContainer.Terminate(ctx)
+		_ = mysqlContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
 	pool, err := sql.Open("mysql", connStr)
 	if err != nil {
-		mysqlContainer.Terminate(ctx)
+		_ = mysqlContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("failed to open db: %w", err)
 	}
 
@@ -129,14 +130,14 @@ func NewWithConfig(ctx context.Context, cfg *config.MySQLConfig) (*sql.DB, func(
 	defer cancel()
 
 	if err := pool.PingContext(ctx); err != nil {
-		pool.Close()
-		mysqlContainer.Terminate(ctx)
+		_ = pool.Close()
+		_ = mysqlContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("mysql not ready: %w", err)
 	}
 
 	cleanup := func() {
-		pool.Close()
-		mysqlContainer.Terminate(context.Background())
+		_ = pool.Close()
+		_ = mysqlContainer.Terminate(context.Background())
 	}
 
 	return pool, cleanup, nil

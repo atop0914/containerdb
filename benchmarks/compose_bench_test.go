@@ -3,8 +3,8 @@ package benchmarks
 import (
 	"testing"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
 	internalsvc "github.com/atop0914/containerdb-bootcamp/internal/compose"
+	"github.com/atop0914/containerdb-bootcamp/internal/config"
 	pkgcompose "github.com/atop0914/containerdb-bootcamp/pkg/compose"
 )
 

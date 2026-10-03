@@ -9,8 +9,9 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/config"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+
+	"github.com/atop0914/containerdb-bootcamp/internal/config"
 )
 
 // Option configures PostgreSQL container options.
@@ -122,13 +123,13 @@ func NewWithConfig(ctx context.Context, cfg *config.PostgresConfig) (*sql.DB, fu
 	// Get connection details using ConnectionString (v0.42.0+ API)
 	connStr, err := pgContainer.ConnectionString(ctx)
 	if err != nil {
-		pgContainer.Terminate(ctx)
+		_ = pgContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("failed to get connection string: %w", err)
 	}
 
 	pool, err := sql.Open("postgres", connStr)
 	if err != nil {
-		pgContainer.Terminate(ctx)
+		_ = pgContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("failed to open db: %w", err)
 	}
 
@@ -141,14 +142,14 @@ func NewWithConfig(ctx context.Context, cfg *config.PostgresConfig) (*sql.DB, fu
 	defer cancel()
 
 	if err := pool.PingContext(ctx); err != nil {
-		pool.Close()
-		pgContainer.Terminate(ctx)
+		_ = pool.Close()
+		_ = pgContainer.Terminate(ctx)
 		return nil, nil, fmt.Errorf("postgres not ready: %w", err)
 	}
 
 	cleanup := func() {
-		pool.Close()
-		pgContainer.Terminate(context.Background())
+		_ = pool.Close()
+		_ = pgContainer.Terminate(context.Background())
 	}
 
 	return pool, cleanup, nil

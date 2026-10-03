@@ -64,10 +64,10 @@ type Migration struct {
 
 // Status represents the status of a migration.
 type Status struct {
-	Version    string
-	Name       string
-	Applied    bool
-	AppliedAt  *time.Time
+	Version   string
+	Name      string
+	Applied   bool
+	AppliedAt *time.Time
 }
 
 // Run executes migrations from a directory.
@@ -112,7 +112,7 @@ func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 
 		_, err = tx.ExecContext(ctx, string(sqlContent))
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to execute migration %s: %w", m.Version, err)
 		}
 
@@ -120,7 +120,7 @@ func Run(ctx context.Context, db *sql.DB, dir string, opts ...Option) error {
 			fmt.Sprintf("INSERT INTO %s (version, applied_at) VALUES (?, ?)", cfg.TableName),
 			m.Version, time.Now())
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to record migration %s: %w", m.Version, err)
 		}
 
@@ -185,7 +185,7 @@ func Rollback(ctx context.Context, db *sql.DB, dir string, steps int, opts ...Op
 
 		_, err = tx.ExecContext(ctx, string(sqlContent))
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to execute down migration %s: %w", version, err)
 		}
 
@@ -193,7 +193,7 @@ func Rollback(ctx context.Context, db *sql.DB, dir string, steps int, opts ...Op
 			fmt.Sprintf("DELETE FROM %s WHERE version = ?", cfg.TableName),
 			version)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return fmt.Errorf("failed to delete migration record %s: %w", version, err)
 		}
 
@@ -254,7 +254,7 @@ func CreateMigration(dir, name string) (string, error) {
 
 	// Generate version from timestamp
 	version := time.Now().Format("20060102150405")
-	
+
 	// Clean the name
 	name = strings.ReplaceAll(name, " ", "_")
 	name = strings.ToLower(name)
@@ -359,7 +359,7 @@ func getAppliedVersions(ctx context.Context, db *sql.DB, tableName string) ([]st
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var versions []string
 	for rows.Next() {
@@ -379,7 +379,7 @@ func getAppliedVersionsWithTime(ctx context.Context, db *sql.DB, tableName strin
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	result := make(map[string]time.Time)
 	for rows.Next() {

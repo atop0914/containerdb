@@ -4,8 +4,9 @@ package commands
 import (
 	"fmt"
 
-	"github.com/atop0914/containerdb-bootcamp/internal/version"
 	"github.com/spf13/cobra"
+
+	"github.com/atop0914/containerdb-bootcamp/internal/version"
 )
 
 // versionCmd represents the version command
@@ -36,7 +37,7 @@ Examples:
   containerdb status                    # Show running containers
   containerdb stop                      # Stop containers`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
@@ -52,8 +53,4 @@ func AddCommands() {
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(composeCmd)
 	rootCmd.AddCommand(versionCmd)
-}
-
-func printVersion() {
-	fmt.Println(version.Info())
 }

@@ -8,8 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/atop0914/containerdb-bootcamp/pkg/migrate"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/atop0914/containerdb-bootcamp/pkg/migrate"
 )
 
 func main() {

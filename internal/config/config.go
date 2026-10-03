@@ -32,16 +32,16 @@ type MySQLConfig struct {
 // DefaultMySQLConfig returns a config with sensible defaults.
 func DefaultMySQLConfig() *MySQLConfig {
 	return &MySQLConfig{
-		Image:                "mysql:8.0",
-		Username:             "root",
-		Password:             "rootpassword",
-		Database:             "testdb",
-		HealthCheckTimeout:   30 * time.Second,
-		HealthCheckRetries:   3,
-		HealthCheckInterval:  500 * time.Millisecond,
-		MaxOpenConns:         10,
-		MaxIdleConns:         5,
-		ConnMaxLifetime:      time.Hour,
+		Image:               "mysql:8.0",
+		Username:            "root",
+		Password:            "rootpassword",
+		Database:            "testdb",
+		HealthCheckTimeout:  30 * time.Second,
+		HealthCheckRetries:  3,
+		HealthCheckInterval: 500 * time.Millisecond,
+		MaxOpenConns:        10,
+		MaxIdleConns:        5,
+		ConnMaxLifetime:     time.Hour,
 	}
 }
 
@@ -72,16 +72,16 @@ type PostgresConfig struct {
 // DefaultPostgresConfig returns a config with sensible defaults.
 func DefaultPostgresConfig() *PostgresConfig {
 	return &PostgresConfig{
-		Image:                "postgres:16-alpine",
-		Username:             "postgres",
-		Password:             "postgres",
-		Database:             "testdb",
-		HealthCheckTimeout:   30 * time.Second,
-		HealthCheckRetries:   3,
-		HealthCheckInterval:  500 * time.Millisecond,
-		MaxOpenConns:         10,
-		MaxIdleConns:         5,
-		ConnMaxLifetime:      time.Hour,
+		Image:               "postgres:16-alpine",
+		Username:            "postgres",
+		Password:            "postgres",
+		Database:            "testdb",
+		HealthCheckTimeout:  30 * time.Second,
+		HealthCheckRetries:  3,
+		HealthCheckInterval: 500 * time.Millisecond,
+		MaxOpenConns:        10,
+		MaxIdleConns:        5,
+		ConnMaxLifetime:     time.Hour,
 	}
 }
 

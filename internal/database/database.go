@@ -8,8 +8,8 @@ import (
 
 // DB wraps a SQL database connection pool with its cleanup function.
 type DB struct {
-	Pool   *sql.DB
-	Close  func() // Releases container resources
+	Pool  *sql.DB
+	Close func() // Releases container resources
 }
 
 // StartFunc is a function that starts a database container.

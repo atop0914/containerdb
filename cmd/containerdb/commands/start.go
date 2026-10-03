@@ -7,9 +7,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/atop0914/containerdb-bootcamp/pkg/mysql"
 	"github.com/atop0914/containerdb-bootcamp/pkg/postgres"
-	"github.com/spf13/cobra"
 )
 
 // startCmd represents the start command

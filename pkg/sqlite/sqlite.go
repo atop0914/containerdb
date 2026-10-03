@@ -109,7 +109,7 @@ func newSQLite(cfg *config.SQLiteConfig) (*sql.DB, func(), error) {
 			dsn += fmt.Sprintf("?cache=%s", cfg.Cache)
 		}
 		cleanupFunc = func() {
-			os.Remove(tmpFile)
+			_ = os.Remove(tmpFile)
 		}
 	case "file":
 		if cfg.Path == "" {
@@ -131,15 +131,14 @@ func newSQLite(cfg *config.SQLiteConfig) (*sql.DB, func(), error) {
 
 	// Verify connection
 	if err := db.Ping(); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, nil, fmt.Errorf("failed to ping sqlite: %w", err)
 	}
 
 	cleanup := func() {
-		db.Close()
+		_ = db.Close()
 		cleanupFunc()
 	}
 
 	return db, cleanup, nil
 }
-
