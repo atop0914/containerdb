@@ -34,8 +34,12 @@ func TestWaitForPort_NotAvailable(t *testing.T) {
 }
 
 func TestWaitForPort_Timeout(t *testing.T) {
-	// Use a non-routable IP to ensure it times out
-	err := WaitForPort("192.0.2.1", 12345, 150*time.Millisecond)
+	// 240.0.0.1 is in the reserved Class E range (240.0.0.0/4), which is
+	// guaranteed to be non-routable, so the dial can only time out. Do NOT use
+	// documentation ranges like 192.0.2.0/24 here: on networks/CI runners where
+	// a transparent proxy answers TCP connections, dialing those succeeds
+	// instantly and WaitForPort returns nil, failing this test.
+	err := WaitForPort("240.0.0.1", 12345, 150*time.Millisecond)
 	if err == nil {
 		t.Error("expected timeout error, got nil")
 	}
